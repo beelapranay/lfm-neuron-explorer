@@ -1,0 +1,14 @@
+# Render Blueprint: a static site served straight from the repo root, no build.
+services:
+  - type: web
+    name: lfm-neuron-explorer
+    runtime: static
+    buildCommand: echo "static site, nothing to build"
+    staticPublishPath: .
+    headers:
+      - path: /data/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff

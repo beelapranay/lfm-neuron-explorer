@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LFM Neuron Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="style.css?v=77">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23151515%22/%3E%3Ccircle cx=%228%22 cy=%228%22 r=%222.5%22 fill=%22%23ffd27a%22/%3E%3C/svg%3E">
+<script type="importmap">
+{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<header>
+  <span class="brand">LFM Neuron Explorer</span>
+  <nav id="views">
+    <button data-view="map" class="on">map</button>
+    <button data-view="embed">embeddings</button>
+  </nav>
+  <select id="layer" aria-label="layer"></select>
+  <span class="seg" id="layout-mode" title="sheet layout"><button data-k="index">index</button><button data-k="writes" class="on">writes</button></span>
+  <span class="seg" id="web-mode" title="connection web of the focused neuron: upstream and downstream cones; yellow links push the reader up, magenta push it down"><button data-w="off">off</button><button data-w="on" class="on">web</button></span><input id="web-z" value="5" inputmode="numeric" aria-label="web top links" title="web: the open neuron's top links each way">
+  <span class="seg" id="ex-mode" title="dim the neurons that have no saved examples"><button data-x="all">all</button><button data-x="ex" class="on">examples</button></span>
+  <input id="jump" placeholder="L22 N2742" aria-label="go to neuron" spellcheck="false">
+  <span class="seg" id="q-mode"><button data-q="lens" class="on">lens</button><button data-q="fires">fires</button></span>
+  <input id="lens-q" placeholder="search lens" aria-label="search" spellcheck="false" autocomplete="off">
+  <span id="status" class="mono"></span>
+  <button id="persona-btn" aria-haspopup="true" aria-expanded="false"><i class="ph ph-mask-happy"></i>Personas</button>
+</header>
+
+<main>
+  <section id="map-view" class="view on">
+    <canvas id="map"></canvas>
+    <div id="layer-labels"></div>
+    <button id="layer-back"></button>
+    <nav id="layer-strip" aria-label="layers"></nav>
+  </section>
+  <section id="embed-view" class="view">
+    <canvas id="scatter"></canvas>
+    <div id="embed-empty" class="slot"></div>
+    <div id="embed-bar">
+      <span class="seg" id="color-by">
+        <button data-c="neuron" class="on">neuron</button><button data-c="prompt">prompt</button><button data-c="dose">dose</button><button data-c="kind">kind</button>
+      </span>
+    </div>
+    <div id="tip" class="float"></div>
+  </section>
+
+  <aside id="list" class="float">
+    <div id="focus-head">
+      <div class="id-line"><span id="f-id" class="mono"></span><span id="f-rank" class="mono dim"></span><button id="f-close" aria-label="close neuron"><i class="ph ph-x"></i></button></div>
+      <textarea id="f-name" rows="1" placeholder="" readonly spellcheck="false" aria-label="feature name"></textarea>
+      <p id="f-note" class="fnote" hidden></p>
+    </div>
+    <nav id="ltabs"><button data-lt="net" class="on">net</button><button data-lt="run">run</button><button id="list-hide" class="edge" aria-label="hide list"><i class="ph ph-caret-left"></i></button></nav>
+    <div id="lt-net" class="lpane on">
+      <div id="net"></div>
+      <div id="list-head">
+        <input id="filter" placeholder="filter" spellcheck="false" aria-label="filter by word or name">
+        <label class="dim"><input type="checkbox" id="show-random"> random</label>
+      </div>
+      <ol id="rows" class="rows"></ol>
+    </div>
+    <div id="lt-run" class="lpane">
+      <textarea id="inf-text" rows="6" placeholder="paste text: see which neurons fire most on each token" spellcheck="false"></textarea>
+      <div id="infer">
+        <div id="inf-toks"></div>
+        <div id="inf-filters">
+          <span class="lab">L</span><input id="inf-lo" value="0" inputmode="numeric" aria-label="from layer"><span class="lab">–</span><input id="inf-hi" value="31" inputmode="numeric" aria-label="to layer">
+          <span class="seg" id="inf-sign"><button data-s="both" class="on">±</button><button data-s="+">+</button><button data-s="-">−</button></span>
+          <span class="lab">≥</span><input id="inf-min" value="1.0" inputmode="decimal" aria-label="minimum score">
+          <input id="inf-q" placeholder="lens has…" aria-label="lens filter" spellcheck="false">
+        </div>
+      </div>
+      <ol id="run-rows" class="rows"></ol>
+    </div>
+  </aside>
+
+  <button id="list-tab" class="tab-edge left" aria-label="show list"><i class="ph ph-sidebar-simple"></i></button>
+  <button id="focus-tab" class="tab-edge right mono" aria-label="show neuron"></button>
+  <aside id="focus" class="float">
+    <nav id="tabs"><button data-tab="examples" class="on">Examples</button><button data-tab="chat">Chat</button><button data-tab="details">Details</button><button data-tab="claude">Claude</button><select id="a-agent" class="mono dim" title="agent for new conversations"><option value="claude">claude</option><option value="codex">codex</option></select><button id="a-past" class="mono dim" title="past conversations">past</button><button id="a-new" class="mono dim" title="start a new conversation">new</button><button id="f-collapse" class="edge" aria-label="collapse"><i class="ph ph-caret-right"></i></button></nav>
+    <div id="tab-examples" class="tab on"></div>
+    <!-- phase 2: Chat and Claude need the live model; app.js hides them while PHASE2 is false -->
+    <div id="tab-chat" class="tab">
+      <div id="c-lens"></div>
+      <div id="c-thread"></div>
+      <div id="c-reads"></div>
+      <form id="c-form">
+        <div id="chat-controls">
+          <span class="seg" id="c-mode"><button type="button" data-m="add" class="on">add</button><button type="button" data-m="mul">×</button></span>
+          <span class="seg" id="c-dir"><button type="button" data-d="writes" class="on">writes</button><button type="button" data-d="reads">reads you</button></span>
+          <span class="stepper"><button type="button" id="c-minus" aria-label="smaller">−</button><input id="c-dose" class="mono" inputmode="decimal" aria-label="dose" value="0.8"><button type="button" id="c-plus" aria-label="larger">+</button></span>
+          <button type="button" id="c-clear" class="dim">clear</button>
+        </div>
+        <div class="row"><input id="c-input" placeholder="Who are you?" autocomplete="off"><button id="c-go" type="submit">run</button></div>
+      </form>
+    </div>
+    <div id="tab-details" class="tab"></div>
+    <div id="tab-claude" class="tab">
+      <div id="a-thread"><div class="a-empty dim">Ask anything about the model, or open a neuron and press <b>explain</b>.</div></div>
+      <div id="a-actions"></div>
+      <div id="a-files"></div>
+      <form id="a-form"><button id="a-attach" type="button" title="attach files (or drop / paste them)" aria-label="attach"><i class="ph ph-paperclip"></i></button><input id="a-file" type="file" multiple hidden><textarea id="a-input" rows="1" placeholder="Ask Claude…" title="while Claude works: Enter interrupts and sends, ⌘/Ctrl+Enter queues" spellcheck="false"></textarea><button id="a-send" type="submit" aria-label="send"><i class="ph ph-arrow-up"></i></button></form>
+    </div>
+  </aside>
+</main>
+<div id="persona-menu" class="float" role="menu" aria-label="personas" hidden></div>
+<script type="module" src="static-api.js"></script>
+<script type="module" src="app.js?v=140"></script>
+</body>
+</html>
