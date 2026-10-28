@@ -4,6 +4,8 @@ import { createScatter } from "./scatter.js?v=39";
 const $ = s => document.querySelector(s);
 // phase 1 is browse-only: the live-model panels (Chat, Claude, the left Run tab) stay in the page, hidden, for phase 2
 const PHASE2 = false;
+// phones: the list and the neuron panel become bottom sheets, one at a time (see style.css, max-width 760px)
+const mq = matchMedia("(max-width: 760px)");
 if (!PHASE2) for (const sel of ['#tabs button[data-tab="chat"]', '#tabs button[data-tab="claude"]', "#tab-chat", "#tab-claude",
                                 "#a-agent", "#a-past", "#a-new", '#ltabs button[data-lt="run"]', '#ltabs button[data-lt="net"]', "#lt-run", "#q-mode", "#status"]) document.querySelector(sel).hidden = true;
 const api = async (p, body) => {
@@ -468,6 +470,7 @@ async function runLensSearch() {
   lensResults = r;
   if (leftTab === "net") map.setMarks(r.results || []); else markLeftFresh("net");
   if ($("#list").classList.contains("hidden")) setListHidden(false);
+  if (mq.matches && document.body.classList.contains("focus-open")) { document.body.classList.add("m-showlist"); syncSheets(); }  // phones: results live in the list sheet
   renderList();
 }
 
@@ -618,6 +621,7 @@ function fromHash() {
 
 // ---------- panel collapse ----------
 function updateInsets() {
+  if (mq.matches) { map.setInsets(0, 0); return; }
   const listShown = !$("#list").classList.contains("hidden");
   const focusShown = focusEl.classList.contains("on") && !focusEl.classList.contains("collapsed");
   map.setInsets(listShown ? $("#list").getBoundingClientRect().width + 24 : 0, focusShown ? focusEl.getBoundingClientRect().width + 24 : 0);
@@ -647,6 +651,25 @@ $("#focus-tab").onclick = () => focusEl.classList.contains("on") ? setFocusColla
 
 // ---------- focus panel ----------
 const focusEl = $("#focus");
+// on phones the neuron's id, name and note move into its sheet, and a List button swaps back to the list sheet
+function placeHead() {
+  const h = $("#focus-head"), home = mq.matches ? focusEl : $("#list");
+  if (h.parentElement !== home) home.prepend(h);
+}
+function syncSheets() {
+  const open = focusEl.classList.contains("on") && !focusEl.classList.contains("collapsed");
+  document.body.classList.toggle("focus-open", open);
+  if (!open) document.body.classList.remove("m-showlist");
+  const f = state.focus, r = $("#m-return");
+  r.hidden = !(open && f && f.kind !== "head");
+  if (!r.hidden) r.innerHTML = `<i class="ph ph-caret-left"></i>Back to L${f.layer} N${f.n}`;
+  if (mq.matches) requestAnimationFrame(() => map.setInsets(0, 0));  // the canvas resized with the sheet
+}
+new MutationObserver(syncSheets).observe(focusEl, { attributes: true, attributeFilter: ["class"] });
+mq.addEventListener("change", () => { placeHead(); syncSheets(); updateInsets(); });
+$("#f-back").onclick = () => { document.body.classList.add("m-showlist"); syncSheets(); };
+$("#m-return").onclick = () => { document.body.classList.remove("m-showlist"); syncSheets(); };
+placeHead();
 // closing the neuron keeps the panel up when Claude is the open tab
 $("#f-close").onclick = () => { flushName(); if (running) running.abort(); state.focus = null; $("#list").classList.remove("has-focus");
   map.selectHead(null); state.headInfo = null; state.nheads = null; $("#f-name").style.display = ""; lightHeads(state.inf.pos);
@@ -677,6 +700,7 @@ function openClaude() {
 }
 
 async function openNeuron(layer, n, kind = "neuron", push = true, fly = true) {
+  if (document.body.classList.contains("m-showlist")) { document.body.classList.remove("m-showlist"); syncSheets(); }
   if (!agentSelecting) clearAgentMarks();
   flushName();
   if (running) running.abort();

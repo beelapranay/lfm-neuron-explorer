@@ -421,5 +421,57 @@ header #jump { width: 112px; }
 .pm-go { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--faint); transition: color var(--t), transform var(--t); }
 .pm-item:hover .pm-go, .pm-item:focus-visible .pm-go { color: var(--up); transform: translate(4px, -50%); }
 
+.m-only { display: none; }
+
+/* ---------- phones: a two-row header, the layer strip under it, and the panels as bottom sheets ---------- */
+@media (max-width: 760px) {
+  header { top: 8px; left: 8px; right: 8px; height: auto; flex-wrap: wrap; row-gap: 8px; column-gap: 8px; padding: 4px;
+    border-radius: 20px; overflow: visible; }
+  header .brand, #layout-mode, #web-mode, #web-z, #ex-mode, #jump { display: none !important; }
+  header #views button { padding: 4px 12px; }
+  #persona-btn { order: 1; margin-left: auto; height: 32px; padding: 0 12px; }
+  header #lens-q { order: 2; flex: 1 1 100%; max-width: none; min-width: 0; width: 100%; }
+  #persona-menu { top: 98px; left: 8px; right: 8px; width: auto; max-width: none; max-height: calc(100dvh - 120px); overflow-y: auto; }
+
+  /* the map sits between the layer strip and the open sheet */
+  main { top: 150px; bottom: 45dvh; }
+  body.focus-open:not(.m-showlist) main { bottom: 60dvh; }
+  #layer-strip { position: fixed; top: 98px; left: 8px; right: 8px; bottom: auto; transform: none; max-width: none;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; scrollbar-width: none; }
+  body.list-hidden #layer-strip { max-width: none; }
+  #layer-strip::-webkit-scrollbar { display: none; }
+  #layer-back { top: 158px; left: 16px; }
+  body.list-hidden #layer-back { left: 16px; }
+  #embed-bar, body.list-hidden #embed-bar { left: 16px; top: 8px; bottom: auto; }
+  #tip { max-width: calc(100vw - 32px); }
+
+  /* bottom sheets: the list when no neuron is open, the neuron when one is; List and Back swap them */
+  #list, #focus { top: auto; left: 0; right: 0; bottom: 0; width: auto; border-radius: 16px 16px 0 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.55); }
+  #list { height: 45dvh; max-height: none; }
+  #list.hidden { display: flex !important; }
+  #focus { height: 60dvh; }
+  #focus.collapsed { display: flex !important; }
+  body.focus-open:not(.m-showlist) #list { display: none !important; }
+  body.m-showlist #focus { display: none !important; }
+  .tab-edge, .tab-edge.on, #list-hide, #f-collapse { display: none !important; }
+  .m-only { display: inline-flex; }
+  #m-return[hidden] { display: none; }
+  #m-return { align-items: center; gap: 8px; align-self: flex-start; margin: 12px 12px 0; padding: 4px 12px; border-radius: 9999px;
+    background: var(--raise); color: var(--ink); font-size: 14px; line-height: 20px; }
+  #f-back { align-items: center; gap: 4px; }
+  #f-back i.ph { display: block; vertical-align: 0; }
+  #focus #focus-head { padding: 12px 16px 0; }
+  #focus .id-line { min-height: 32px; }
+  #tabs { margin: 8px 12px 0; overflow-x: auto; scrollbar-width: none; }
+  #tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 12px; }
+  /* the examples grid keeps its columns and scrolls sideways inside the sheet */
+  #tab-examples { overflow: auto; -webkit-overflow-scrolling: touch; }
+  #tab-examples .grid { min-width: 600px; }
+  .lens { grid-template-columns: 1fr; }
+  .rows li { grid-template-columns: 56px 36px minmax(0, 1fr); }
+}
+
 /* static build: names are read-only, and an unnamed neuron shows no empty name field */
 #f-name:placeholder-shown { display: none; }
