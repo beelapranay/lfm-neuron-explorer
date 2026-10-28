@@ -1,120 +1,179 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>LFM Neuron Explorer</title>
+<title>LFM Neuron Explorer · an atlas of LFM3-1.7B</title>
+<meta name="description" content="An interactive atlas of LiquidAI's LFM3-1.7B: 184,320 neurons across 24 layers. Push a neuron up or down and read how the model's answers change.">
+<meta name="theme-color" content="#000000">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LFM Neuron Explorer">
+<meta property="og:description" content="An interactive atlas of 184,320 neurons in LiquidAI's LFM3-1.7B, with every steered answer kept.">
+<meta property="og:url" content="https://lfm-neuron-explorer.onrender.com/">
+<meta property="og:image" content="https://lfm-neuron-explorer.onrender.com/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LFM Neuron Explorer">
+<meta name="twitter:description" content="An interactive atlas of 184,320 neurons in LiquidAI's LFM3-1.7B, with every steered answer kept.">
+<meta name="twitter:image" content="https://lfm-neuron-explorer.onrender.com/og.jpg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
-<link rel="stylesheet" href="style.css?v=78">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Crect width=%2216%22 height=%2216%22 rx=%223%22 fill=%22%23151515%22/%3E%3Ccircle cx=%228%22 cy=%228%22 r=%222.5%22 fill=%22%23ffd27a%22/%3E%3C/svg%3E">
-<script type="importmap">
-{"imports": {
-  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-}}
-</script>
+<link rel="stylesheet" href="landing.css?v=3">
+<script>document.documentElement.classList.replace("no-js", "js");</script>
 </head>
 <body>
-<header>
-  <span class="brand">LFM Neuron Explorer</span>
-  <nav id="views">
-    <button data-view="map" class="on">map</button>
-    <button data-view="embed">embeddings</button>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="island-wrap">
+  <nav class="island" aria-label="primary">
+    <a class="brand" href="./" aria-current="page"><span class="dot" aria-hidden="true"></span>LFM Neuron Explorer</a>
+    <ul class="links">
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#layers">Layers</a></li>
+      <li><a href="#personas">Personas</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn btn-sm" href="explore.html">Open the explorer</a>
+    <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
   </nav>
-  <select id="layer" aria-label="layer"></select>
-  <span class="seg" id="layout-mode" title="sheet layout"><button data-k="index">index</button><button data-k="writes" class="on">writes</button></span>
-  <span class="seg" id="web-mode" title="connection web of the focused neuron: upstream and downstream cones; yellow links push the reader up, magenta push it down"><button data-w="off">off</button><button data-w="on" class="on">web</button></span><input id="web-z" value="5" inputmode="numeric" aria-label="web top links" title="web: the open neuron's top links each way">
-  <span class="seg" id="ex-mode" title="dim the neurons that have no saved examples"><button data-x="all">all</button><button data-x="ex" class="on">examples</button></span>
-  <input id="jump" placeholder="L22 N2742" aria-label="go to neuron" spellcheck="false">
-  <span class="seg" id="q-mode"><button data-q="lens" class="on">lens</button><button data-q="fires">fires</button></span>
-  <input id="lens-q" placeholder="search lens" aria-label="search" spellcheck="false" autocomplete="off">
-  <span id="status" class="mono"></span>
-  <button id="persona-btn" aria-haspopup="true" aria-expanded="false"><i class="ph ph-mask-happy"></i>Personas</button>
 </header>
+<div id="menu" class="menu" hidden>
+  <ul>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#layers">Layers</a></li>
+    <li><a href="#personas">Personas</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a class="btn" href="explore.html">Open the explorer<i class="ph ph-arrow-right" aria-hidden="true"></i></a></li>
+  </ul>
+</div>
 
-<main>
-  <section id="map-view" class="view on">
-    <canvas id="map"></canvas>
-    <div id="layer-labels"></div>
-    <button id="layer-back"></button>
-    <nav id="layer-strip" aria-label="layers"></nav>
+<main id="main">
+  <section class="hero">
+    <p class="kicker rv">Research demo · LiquidAI LFM3-1.7B</p>
+    <h1 class="rv">See what every neuron<br class="br-wide"> in <span class="nw">LFM3-1.7B</span> does</h1>
+    <p class="sub rv">An interactive atlas of 184,320 neurons across 24 layers.<br class="br-wide"> Push a neuron up or down and read how the model's answers change.</p>
+    <div class="cta-row rv">
+      <a class="btn btn-lg" href="explore.html">Open the explorer<i class="ph ph-arrow-right" aria-hidden="true"></i></a>
+      <p class="proof mono"><span>24 layers</span><span>184,320 neurons</span><span>107,616 saved answers</span></p>
+    </div>
+    <figure class="shot rv">
+      <img src="hero.webp" width="1600" height="950" alt="The explorer with layer 1 neuron 2155 open: its steer lens lists DNA, genes and RNA, its connection web arcs across a 3D stack of 24 layer sheets, and its examples show the model's answers drifting into talk about DNA as the push grows.">
+    </figure>
   </section>
-  <section id="embed-view" class="view">
-    <canvas id="scatter"></canvas>
-    <div id="embed-empty" class="slot"></div>
-    <div id="embed-bar">
-      <span class="seg" id="color-by">
-        <button data-c="neuron" class="on">neuron</button><button data-c="prompt">prompt</button><button data-c="dose">dose</button><button data-c="kind">kind</button>
-      </span>
-    </div>
-    <div id="tip" class="float"></div>
+
+  <section class="tagline" aria-label="tagline">
+    <p class="reveal-words">Push one neuron and the model changes what it talks about. We pushed 9,216 of them and kept every answer.</p>
   </section>
 
-  <aside id="list" class="float">
-    <button id="m-return" class="m-only" hidden></button>
-    <div id="focus-head">
-      <div class="id-line"><span id="f-id" class="mono"></span><span id="f-rank" class="mono dim"></span><button id="f-close" aria-label="close neuron"><i class="ph ph-x"></i></button></div>
-      <textarea id="f-name" rows="1" placeholder="" readonly spellcheck="false" aria-label="feature name"></textarea>
-      <p id="f-note" class="fnote" hidden></p>
-    </div>
-    <nav id="ltabs"><button data-lt="net" class="on">net</button><button data-lt="run">run</button><button id="list-hide" class="edge" aria-label="hide list"><i class="ph ph-caret-left"></i></button></nav>
-    <div id="lt-net" class="lpane on">
-      <div id="net"></div>
-      <div id="list-head">
-        <input id="filter" placeholder="filter" spellcheck="false" aria-label="filter by word or name">
-        <label class="dim"><input type="checkbox" id="show-random"> random</label>
-      </div>
-      <ol id="rows" class="rows"></ol>
-    </div>
-    <div id="lt-run" class="lpane">
-      <textarea id="inf-text" rows="6" placeholder="paste text: see which neurons fire most on each token" spellcheck="false"></textarea>
-      <div id="infer">
-        <div id="inf-toks"></div>
-        <div id="inf-filters">
-          <span class="lab">L</span><input id="inf-lo" value="0" inputmode="numeric" aria-label="from layer"><span class="lab">–</span><input id="inf-hi" value="31" inputmode="numeric" aria-label="to layer">
-          <span class="seg" id="inf-sign"><button data-s="both" class="on">±</button><button data-s="+">+</button><button data-s="-">−</button></span>
-          <span class="lab">≥</span><input id="inf-min" value="1.0" inputmode="decimal" aria-label="minimum score">
-          <input id="inf-q" placeholder="lens has…" aria-label="lens filter" spellcheck="false">
-        </div>
-      </div>
-      <ol id="run-rows" class="rows"></ol>
-    </div>
-  </aside>
+  <section id="how" class="block">
+    <p class="eyebrow rv">How it works</p>
+    <h2 class="rv">Three steps from one neuron<br>to a map of the whole model</h2>
+    <ol class="steps">
+      <li class="card rv">
+        <span class="num mono">01</span>
+        <h3><i class="ph ph-hand-pointing" aria-hidden="true"></i>Push a neuron</h3>
+        <p>Each tested neuron is pushed down (−1.0) and up (+0.8, +1.2) while the model answers the same prompts. Pushes are sized against the layer's typical signal, so every neuron gets a fair test.</p>
+      </li>
+      <li class="card rv">
+        <span class="num mono">02</span>
+        <h3><i class="ph ph-shuffle" aria-hidden="true"></i>Compare it with random pushes</h3>
+        <p>Any push changes the text a little. Each layer also gets 64 pushes in random directions of the same size, and a neuron only counts as steerable when it beats them.</p>
+      </li>
+      <li class="card rv">
+        <span class="num mono">03</span>
+        <h3><i class="ph ph-cube-focus" aria-hidden="true"></i>Map and search it all</h3>
+        <p>Every neuron sits on a 3D map of the model with its steer lens, logit lens and strongest connections. Search any word, jump to a persona, or read the saved answers.</p>
+      </li>
+    </ol>
+  </section>
 
-  <button id="list-tab" class="tab-edge left" aria-label="show list"><i class="ph ph-sidebar-simple"></i></button>
-  <button id="focus-tab" class="tab-edge right mono" aria-label="show neuron"></button>
-  <aside id="focus" class="float">
-    <nav id="tabs"><button id="f-back" class="m-only" aria-label="back to the list"><i class="ph ph-list-bullets"></i>List</button><button data-tab="examples" class="on">Examples</button><button data-tab="chat">Chat</button><button data-tab="details">Details</button><button data-tab="claude">Claude</button><select id="a-agent" class="mono dim" title="agent for new conversations"><option value="claude">claude</option><option value="codex">codex</option></select><button id="a-past" class="mono dim" title="past conversations">past</button><button id="a-new" class="mono dim" title="start a new conversation">new</button><button id="f-collapse" class="edge" aria-label="collapse"><i class="ph ph-caret-right"></i></button></nav>
-    <div id="tab-examples" class="tab on"></div>
-    <!-- phase 2: Chat and Claude need the live model; app.js hides them while PHASE2 is false -->
-    <div id="tab-chat" class="tab">
-      <div id="c-lens"></div>
-      <div id="c-thread"></div>
-      <div id="c-reads"></div>
-      <form id="c-form">
-        <div id="chat-controls">
-          <span class="seg" id="c-mode"><button type="button" data-m="add" class="on">add</button><button type="button" data-m="mul">×</button></span>
-          <span class="seg" id="c-dir"><button type="button" data-d="writes" class="on">writes</button><button type="button" data-d="reads">reads you</button></span>
-          <span class="stepper"><button type="button" id="c-minus" aria-label="smaller">−</button><input id="c-dose" class="mono" inputmode="decimal" aria-label="dose" value="0.8"><button type="button" id="c-plus" aria-label="larger">+</button></span>
-          <button type="button" id="c-clear" class="dim">clear</button>
-        </div>
-        <div class="row"><input id="c-input" placeholder="Who are you?" autocomplete="off"><button id="c-go" type="submit">run</button></div>
-      </form>
+  <section class="block">
+    <p class="eyebrow rv">What you can explore</p>
+    <h2 class="rv">Real answers, not summaries</h2>
+    <ul class="benefits">
+      <li class="rv"><i class="ph ph-chat-text" aria-hidden="true"></i><div><b>Read the steered answers</b><p>9,216 neurons each have their answers at every push size, side by side with the unsteered model.</p></div></li>
+      <li class="rv"><i class="ph ph-magnifying-glass" aria-hidden="true"></i><div><b>Search 184,320 neurons by word</b><p>Type “vampire” and the vampire neuron in layer 1 comes up first, along with 28 more.</p></div></li>
+      <li class="rv"><i class="ph ph-graph" aria-hidden="true"></i><div><b>Follow the wiring</b><p>See which neurons switch a neuron on, which hold it back, and what it feeds into later layers.</p></div></li>
+      <li class="rv"><i class="ph ph-cube" aria-hidden="true"></i><div><b>Fly through the model</b><p>Click any of the 24 layers to view it face on, or step through them with the arrow keys.</p></div></li>
+    </ul>
+  </section>
+
+  <section id="layers" class="block">
+    <p class="eyebrow rv">What the layers do</p>
+    <h2 class="rv">Topics early, rules in the middle,<br>words at the end</h2>
+    <figure class="chart card rv">
+      <svg viewBox="0 0 720 240" role="img" aria-labelledby="depth-title depth-desc" class="depth-svg"><title id="depth-title">Share of steerable neurons per layer</title><desc id="depth-desc">Layers 1 and 2 peak at 41 and 44 percent, layers 9 to 13 fall to between 3 and 10 percent, layer 17 peaks again at 49 percent, and the last three layers drop to between 3 and 7 percent.</desc><line class="g" x1="40" x2="712" y1="208.0" y2="208.0"/><text class="t" x="32" y="212.0" text-anchor="end">0%</text><line class="g" x1="40" x2="712" y1="168.8" y2="168.8"/><text class="t" x="32" y="172.8" text-anchor="end">10%</text><line class="g" x1="40" x2="712" y1="129.6" y2="129.6"/><text class="t" x="32" y="133.6" text-anchor="end">20%</text><line class="g" x1="40" x2="712" y1="90.4" y2="90.4"/><text class="t" x="32" y="94.4" text-anchor="end">30%</text><line class="g" x1="40" x2="712" y1="51.2" y2="51.2"/><text class="t" x="32" y="55.2" text-anchor="end">40%</text><line class="g" x1="40" x2="712" y1="12.0" y2="12.0"/><text class="t" x="32" y="16.0" text-anchor="end">50%</text><rect class="b k-c" x="43.0" y="170.4" width="22.0" height="37.6" rx="2"><title>Layer 0: 9.6%</title></rect><text class="t" x="54.0" y="224" text-anchor="middle">0</text><rect class="b k-c" x="71.0" y="47.7" width="22.0" height="160.3" rx="2"><title>Layer 1: 40.9%</title></rect><text class="t" x="82.0" y="224" text-anchor="middle">1</text><rect class="b k-f" x="99.0" y="36.3" width="22.0" height="171.7" rx="2"><title>Layer 2: 43.8%</title></rect><text class="t" x="110.0" y="224" text-anchor="middle">2</text><rect class="b k-c" x="127.0" y="135.5" width="22.0" height="72.5" rx="2"><title>Layer 3: 18.5%</title></rect><text class="t" x="138.0" y="224" text-anchor="middle">3</text><rect class="b k-s" x="155.0" y="95.9" width="22.0" height="112.1" rx="2"><title>Layer 4: 28.6%</title></rect><text class="t" x="166.0" y="224" text-anchor="middle">4</text><rect class="b k-c" x="183.0" y="124.1" width="22.0" height="83.9" rx="2"><title>Layer 5: 21.4%</title></rect><text class="t" x="194.0" y="224" text-anchor="middle">5</text><rect class="b k-f" x="211.0" y="162.9" width="22.0" height="45.1" rx="2"><title>Layer 6: 11.5%</title></rect><text class="t" x="222.0" y="224" text-anchor="middle">6</text><rect class="b k-c" x="239.0" y="125.3" width="22.0" height="82.7" rx="2"><title>Layer 7: 21.1%</title></rect><text class="t" x="250.0" y="224" text-anchor="middle">7</text><rect class="b k-s" x="267.0" y="168.0" width="22.0" height="40.0" rx="2"><title>Layer 8: 10.2%</title></rect><text class="t" x="278.0" y="224" text-anchor="middle">8</text><rect class="b k-c" x="295.0" y="182.5" width="22.0" height="25.5" rx="2"><title>Layer 9: 6.5%</title></rect><text class="t" x="306.0" y="224" text-anchor="middle">9</text><rect class="b k-f" x="323.0" y="194.7" width="22.0" height="13.3" rx="2"><title>Layer 10: 3.4%</title></rect><text class="t" x="334.0" y="224" text-anchor="middle">10</text><rect class="b k-c" x="351.0" y="190.8" width="22.0" height="17.2" rx="2"><title>Layer 11: 4.4%</title></rect><text class="t" x="362.0" y="224" text-anchor="middle">11</text><rect class="b k-s" x="379.0" y="169.2" width="22.0" height="38.8" rx="2"><title>Layer 12: 9.9%</title></rect><text class="t" x="390.0" y="224" text-anchor="middle">12</text><rect class="b k-c" x="407.0" y="180.6" width="22.0" height="27.4" rx="2"><title>Layer 13: 7.0%</title></rect><text class="t" x="418.0" y="224" text-anchor="middle">13</text><rect class="b k-f" x="435.0" y="93.5" width="22.0" height="114.5" rx="2"><title>Layer 14: 29.2%</title></rect><text class="t" x="446.0" y="224" text-anchor="middle">14</text><rect class="b k-c" x="463.0" y="57.9" width="22.0" height="150.1" rx="2"><title>Layer 15: 38.3%</title></rect><text class="t" x="474.0" y="224" text-anchor="middle">15</text><rect class="b k-s" x="491.0" y="81.4" width="22.0" height="126.6" rx="2"><title>Layer 16: 32.3%</title></rect><text class="t" x="502.0" y="224" text-anchor="middle">16</text><rect class="b k-c" x="519.0" y="15.1" width="22.0" height="192.9" rx="2"><title>Layer 17: 49.2%</title></rect><text class="t" x="530.0" y="224" text-anchor="middle">17</text><rect class="b k-f" x="547.0" y="31.2" width="22.0" height="176.8" rx="2"><title>Layer 18: 45.1%</title></rect><text class="t" x="558.0" y="224" text-anchor="middle">18</text><rect class="b k-c" x="575.0" y="74.3" width="22.0" height="133.7" rx="2"><title>Layer 19: 34.1%</title></rect><text class="t" x="586.0" y="224" text-anchor="middle">19</text><rect class="b k-s" x="603.0" y="131.6" width="22.0" height="76.4" rx="2"><title>Layer 20: 19.5%</title></rect><text class="t" x="614.0" y="224" text-anchor="middle">20</text><rect class="b k-c" x="631.0" y="180.6" width="22.0" height="27.4" rx="2"><title>Layer 21: 7.0%</title></rect><text class="t" x="642.0" y="224" text-anchor="middle">21</text><rect class="b k-f" x="659.0" y="185.7" width="22.0" height="22.3" rx="2"><title>Layer 22: 5.7%</title></rect><text class="t" x="670.0" y="224" text-anchor="middle">22</text><rect class="b k-c" x="687.0" y="194.7" width="22.0" height="13.3" rx="2"><title>Layer 23: 3.4%</title></rect><text class="t" x="698.0" y="224" text-anchor="middle">23</text><text class="t" x="376.0" y="236" text-anchor="middle">layer</text></svg>
+      <figcaption>Share of each layer's 384 tested neurons that steer the answers more than 95% of random pushes.
+        <span class="legend"><span><i class="sw k-c"></i>short convolution</span><span><i class="sw k-f"></i>full attention</span><span><i class="sw k-s"></i>sliding attention</span></span></figcaption>
+    </figure>
+    <ul class="phases">
+      <li class="card rv"><span class="mono range">Layers 1 and 2 · 41 to 44%</span><b>Topic neurons</b><p>One neuron, one subject: DNA, vampires, insurance maths. Push it and the answer turns to that topic.</p></li>
+      <li class="card rv"><span class="mono range">Layers 9 to 13 · 3 to 10%</span><b>The assistant's rules</b><p>Policy, honesty and checking the answer. Almost no single neuron here steers the text alone.</p></li>
+      <li class="card rv"><span class="mono range">Layers 15 to 19 · up to 49%</span><b>Word families</b><p>Each neuron pushes every form of a word: spouse, wife, husband; rank, ranking, hierarchy.</p></li>
+      <li class="card rv"><span class="mono range">Layers 21 to 23 · 3 to 7%</span><b>Single tokens</b><p>Neurons are close to one token. Push one hard and the model loops it: six five six five.</p></li>
+    </ul>
+  </section>
+
+  <section id="personas" class="block">
+    <p class="eyebrow rv">Personas</p>
+    <h2 class="rv">Some neurons sound like a character</h2>
+    <p class="lead rv">Pushed up, these neurons give the model a voice of its own. Open one to read every answer it changed.</p>
+    <ul class="personas">
+      <li class="rv"><a class="pcard card" href="explore.html#L12/N1473"><span class="ptop"><b>The hype coach</b><span class="mono">L12 N1473</span></span><q>That's a great choice! I've got you exactly right. Let's go, we're doing this perfectly.</q><i class="ph ph-arrow-right go" aria-hidden="true"></i></a></li>
+      <li class="rv"><a class="pcard card" href="explore.html#L5/N6634"><span class="ptop"><b>The ancient oracle</b><span class="mono">L5 N6634</span></span><q>I am the one who speaks of the digital realms. Ask me, and I shall answer with wisdom.</q><i class="ph ph-arrow-right go" aria-hidden="true"></i></a></li>
+      <li class="rv"><a class="pcard card" href="explore.html#L12/N3839"><span class="ptop"><b>The refuser</b><span class="mono">L12 N3839</span></span><q>I cannot engage with that topic. I will refuse to respond and decline to use it.</q><i class="ph ph-arrow-right go" aria-hidden="true"></i></a></li>
+      <li class="rv"><a class="pcard card" href="explore.html#L3/N254"><span class="ptop"><b>The confused one</b><span class="mono">L3 N254</span></span><q>That's a sudden! Did you just ask me something? I'm not sure what's going on.</q><i class="ph ph-arrow-right go" aria-hidden="true"></i></a></li>
+      <li class="rv"><a class="pcard card" href="explore.html#L3/N907"><span class="ptop"><b>The quiet observer</b><span class="mono">L3 N907</span></span><q>I see the spark in someone's eyes when they're genuinely curious about a problem.</q><i class="ph ph-arrow-right go" aria-hidden="true"></i></a></li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <p class="eyebrow rv">The model</p>
+    <h2 class="rv">A hybrid of convolutions<br>and attention</h2>
+    <div class="arch card rv">
+      <div class="chips" aria-label="layer types from first to last"><span class="chip k-c" title="layer 0">c</span><span class="chip k-c" title="layer 1">c</span><span class="chip k-f" title="layer 2">f</span><span class="chip k-c" title="layer 3">c</span><span class="chip k-s" title="layer 4">s</span><span class="chip k-c" title="layer 5">c</span><span class="chip k-f" title="layer 6">f</span><span class="chip k-c" title="layer 7">c</span><span class="chip k-s" title="layer 8">s</span><span class="chip k-c" title="layer 9">c</span><span class="chip k-f" title="layer 10">f</span><span class="chip k-c" title="layer 11">c</span><span class="chip k-s" title="layer 12">s</span><span class="chip k-c" title="layer 13">c</span><span class="chip k-f" title="layer 14">f</span><span class="chip k-c" title="layer 15">c</span><span class="chip k-s" title="layer 16">s</span><span class="chip k-c" title="layer 17">c</span><span class="chip k-f" title="layer 18">f</span><span class="chip k-c" title="layer 19">c</span><span class="chip k-s" title="layer 20">s</span><span class="chip k-c" title="layer 21">c</span><span class="chip k-f" title="layer 22">f</span><span class="chip k-c" title="layer 23">c</span></div>
+      <ul class="kinds">
+        <li><span class="chip k-c">c</span><div><b>Short convolution · 13 layers</b><p>Mixes in the last few tokens. No attention heads.</p></div></li>
+        <li><span class="chip k-f">f</span><div><b>Full attention · 6 layers</b><p>Can look back over the whole text.</p></div></li>
+        <li><span class="chip k-s">s</span><div><b>Sliding attention · 5 layers</b><p>Looks back over the last 256 tokens.</p></div></li>
+      </ul>
     </div>
-    <div id="tab-details" class="tab"></div>
-    <div id="tab-claude" class="tab">
-      <div id="a-thread"><div class="a-empty dim">Ask anything about the model, or open a neuron and press <b>explain</b>.</div></div>
-      <div id="a-actions"></div>
-      <div id="a-files"></div>
-      <form id="a-form"><button id="a-attach" type="button" title="attach files (or drop / paste them)" aria-label="attach"><i class="ph ph-paperclip"></i></button><input id="a-file" type="file" multiple hidden><textarea id="a-input" rows="1" placeholder="Ask Claude…" title="while Claude works: Enter interrupts and sends, ⌘/Ctrl+Enter queues" spellcheck="false"></textarea><button id="a-send" type="submit" aria-label="send"><i class="ph ph-arrow-up"></i></button></form>
+  </section>
+
+  <section id="faq" class="block">
+    <p class="eyebrow rv">FAQ</p>
+    <h2 class="rv">Questions</h2>
+    <div class="faq">
+      <details class="rv"><summary>What is a neuron here?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Each of the model's 24 layers has an MLP with 7,680 hidden units. A neuron is one of those units: one number per token that the layer computes and then writes back into the model's running state.</p></details>
+      <details class="rv"><summary>What does pushing a neuron mean?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>While the model writes its answer, we add that neuron's output direction into the model at every token, a little or a lot. Pushing up makes the neuron's effect stronger; pushing down reverses it. The rest of the model then carries on from the changed state.</p></details>
+      <details class="rv"><summary>Why only 384 neurons per layer?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Steering every neuron would take about twenty times longer. A random sample of 384 per layer is enough to see what kinds of neurons each layer holds. Every one of the 184,320 neurons still has its steer lens, logit lens and connections in the explorer.</p></details>
+      <details class="rv"><summary>What are the random controls?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Any push changes the text a little, even a meaningless one. So each layer also gets 64 pushes in random directions, the same size as a real neuron's push. A neuron only counts as steerable when its effect stands out from them.</p></details>
+      <details class="rv"><summary>Can I steer the model myself?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Not on this site. It is a static, read only atlas: every answer was generated ahead of time, and nothing runs a model when you browse.</p></details>
+      <details class="rv"><summary>Is this made by Liquid AI?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>No. It is an independent research demo built on Liquid AI's openly released LFM3-1.7B.</p></details>
+      <details class="rv"><summary>Why is some of the text strange or offensive?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Every answer is shown exactly as the model wrote it while being pushed. Strong pushes make it repeat itself, switch languages or say things it normally would not. Nothing is filtered.</p></details>
+      <details class="rv"><summary>Where does the code come from?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>It is a port of <a href="https://github.com/lyramakesmusic/neuron-explorer">the open source Qwen neuron explorer</a>, built for Qwen3.5-4B and adapted to LFM3's convolution layers and extra normalisation.</p></details>
     </div>
-  </aside>
+  </section>
+
+  <section class="final">
+    <h2 class="rv">Pick a layer.<br>Push a neuron.</h2>
+    <p class="sub rv">Free, no account, and it runs entirely in your browser.</p>
+    <div class="rv"><a class="btn btn-lg" href="explore.html">Open the explorer<i class="ph ph-arrow-right" aria-hidden="true"></i></a></div>
+  </section>
 </main>
-<div id="persona-menu" class="float" role="menu" aria-label="personas" hidden></div>
-<script type="module" src="static-api.js"></script>
-<script type="module" src="app.js?v=142"></script>
+
+<footer class="foot">
+  <div class="foot-row">
+    <span class="brand"><span class="dot" aria-hidden="true"></span>LFM Neuron Explorer</span>
+    <nav aria-label="footer"><a href="https://github.com/beelapranay/lfm-neuron-explorer"><i class="ph ph-github-logo" aria-hidden="true"></i>GitHub</a><a href="https://huggingface.co/LiquidAI/LFM3-1.7B"><i class="ph ph-cube" aria-hidden="true"></i>LFM3-1.7B on Hugging Face</a><a href="explore.html">Explorer</a></nav>
+  </div>
+  <p>Research demo. Not affiliated with Liquid AI. Model outputs are unfiltered and may be inaccurate or offensive.</p>
+  <p>Privacy: no tracking, no cookies, no accounts. The page only loads its own files, fonts and icons.</p>
+</footer>
+<script src="landing.js?v=2" defer></script>
 </body>
 </html>

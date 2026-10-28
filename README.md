@@ -8,10 +8,16 @@ steered answer, and a few persona neurons to start from.
 There is no server. Everything the page shows was precomputed into `data/`, and `static-api.js` answers the page's
 requests in the browser. Nothing on the site runs a model, saves anything, or accepts input beyond browsing.
 
+## Pages
+
+- `index.html`: the landing page (landing.css, landing.js, hero.webp, og.jpg, favicon.svg)
+- `explore.html`: the explorer itself; links like `explore.html#L12/N1473` open a neuron directly
+- `404.html`: served by Render for unknown paths
+
 ## Preview locally
 
     python3 -m http.server 8000
-    # open http://localhost:8000
+    # open http://localhost:8000 (the 404 page only shows on Render)
 
 ## Deploy on Render (free static site)
 
