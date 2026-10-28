@@ -35,7 +35,6 @@
       <li><a href="#how">How it works</a></li>
       <li><a href="#layers">Layers</a></li>
       <li><a href="#personas">Personas</a></li>
-      <li><a href="#faq">FAQ</a></li>
     </ul>
     <a class="btn btn-sm" href="explore.html">Open the explorer</a>
     <button class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span></button>
@@ -46,7 +45,6 @@
     <li><a href="#how">How it works</a></li>
     <li><a href="#layers">Layers</a></li>
     <li><a href="#personas">Personas</a></li>
-    <li><a href="#faq">FAQ</a></li>
     <li><a class="btn" href="explore.html">Open the explorer<i class="ph ph-arrow-right" aria-hidden="true"></i></a></li>
   </ul>
 </div>
@@ -141,21 +139,6 @@
         <li><span class="chip k-f">f</span><div><b>Full attention · 6 layers</b><p>Can look back over the whole text.</p></div></li>
         <li><span class="chip k-s">s</span><div><b>Sliding attention · 5 layers</b><p>Looks back over the last 256 tokens.</p></div></li>
       </ul>
-    </div>
-  </section>
-
-  <section id="faq" class="block">
-    <p class="eyebrow rv">FAQ</p>
-    <h2 class="rv">Questions</h2>
-    <div class="faq">
-      <details class="rv"><summary>What is a neuron here?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Each of the model's 24 layers has an MLP with 7,680 hidden units. A neuron is one of those units: one number per token that the layer computes and then writes back into the model's running state.</p></details>
-      <details class="rv"><summary>What does pushing a neuron mean?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>While the model writes its answer, we add that neuron's output direction into the model at every token, a little or a lot. Pushing up makes the neuron's effect stronger; pushing down reverses it. The rest of the model then carries on from the changed state.</p></details>
-      <details class="rv"><summary>Why only 384 neurons per layer?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Steering every neuron would take about twenty times longer. A random sample of 384 per layer is enough to see what kinds of neurons each layer holds. Every one of the 184,320 neurons still has its steer lens, logit lens and connections in the explorer.</p></details>
-      <details class="rv"><summary>What are the random controls?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Any push changes the text a little, even a meaningless one. So each layer also gets 64 pushes in random directions, the same size as a real neuron's push. A neuron only counts as steerable when its effect stands out from them.</p></details>
-      <details class="rv"><summary>Can I steer the model myself?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Not on this site. It is a static, read only atlas: every answer was generated ahead of time, and nothing runs a model when you browse.</p></details>
-      <details class="rv"><summary>Is this made by Liquid AI?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>No. It is an independent research demo built on Liquid AI's openly released LFM3-1.7B.</p></details>
-      <details class="rv"><summary>Why is some of the text strange or offensive?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>Every answer is shown exactly as the model wrote it while being pushed. Strong pushes make it repeat itself, switch languages or say things it normally would not. Nothing is filtered.</p></details>
-      <details class="rv"><summary>Where does the code come from?<i class="ph ph-plus" aria-hidden="true"></i></summary><p>It is a port of <a href="https://github.com/lyramakesmusic/neuron-explorer">the open source Qwen neuron explorer</a>, built for Qwen3.5-4B and adapted to LFM3's convolution layers and extra normalisation.</p></details>
     </div>
   </section>
 

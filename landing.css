@@ -151,18 +151,6 @@ figcaption { color: var(--dim); font-size: 14px; line-height: 20px; display: fle
 .kinds b { display: block; font-size: 16px; line-height: 24px; font-weight: 600; }
 .kinds p { color: var(--dim); font-size: 14px; line-height: 20px; }
 
-/* faq */
-.faq { display: grid; gap: 8px; max-width: 816px; }
-.faq details { background: var(--s1); border: 1px solid var(--s3); border-radius: 16px; transition: background-color 300ms var(--ease); }
-.faq details[open] { background: var(--s2); }
-.faq summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 24px; cursor: pointer; list-style: none;
-  font-size: 16px; line-height: 24px; font-weight: 600; border-radius: 16px; }
-.faq summary::-webkit-details-marker { display: none; }
-.faq summary i { flex: none; color: var(--faint); transition: transform 700ms var(--ease); }
-.faq details[open] summary i { transform: rotate(45deg); }
-.faq details p { padding: 0 24px 24px; color: var(--dim); font-size: 14px; line-height: 20px; max-width: 680px; }
-.faq a { color: var(--link); }
-
 /* final cta and footer */
 .final { display: grid; justify-items: center; text-align: center; gap: 16px; padding-block: 64px; }
 .final h2 { font-size: 48px; line-height: 1; max-width: 680px; }
